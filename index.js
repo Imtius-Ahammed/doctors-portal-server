@@ -111,6 +111,15 @@ async function run(){
     })
 
 
+// for doctor specialty
+    app.get('/appointmentSpecialty', async(req,res)=>{
+      const query = {}
+      const result = await appointmentOptionCollection.find(query).project({name: 1}).toArray();
+      res.send(result)
+
+    })
+
+
     app.get('/bookings',verifyJWT, async (req,res)=>{
       const email = req.query.email;
       const decodedEmail = req.decoded.email;
@@ -182,7 +191,7 @@ async function run(){
     app.put('/users/admin/:id',verifyJWT, async(req,res)=>{
       const decodedEmail = req.decoded.email;
       const query={email: decodedEmail};
-      const user = await usersCollection.findOne(query).toArray();
+      const user = await usersCollection.findOne(query);
       if(user?.role !== 'admin'){
         return res.status(403).send({message: 'forbidden access'})
       }
