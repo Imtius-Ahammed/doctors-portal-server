@@ -3,6 +3,7 @@ const cors = require('cors');
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
+const { query } = require('express');
 require('dotenv').config();
 
 const app = express();
@@ -145,7 +146,16 @@ async function run(){
       const query = {email: email};
       const bookings = await bookingsCollection.find(query).toArray();
       res.send(bookings);
-    } )
+    } );
+
+
+    // for indevidual payment id
+    app.get('/bookings/:id',async (req,res)=>{
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)}
+      const booking = await bookingsCollection.findOne(query);
+      res.send(booking)
+    })
 
     app.post('/bookings',async(req,res)=>{
       const booking = req.body
