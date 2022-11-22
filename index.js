@@ -45,6 +45,7 @@ async function run(){
     const bookingsCollection = client.db('doctorsPortal').collection('bookings');
     const usersCollection = client.db('doctorsPortal').collection('users');
     const doctorsCollection = client.db('doctorsPortal').collection('doctors');
+    const paymentsCollection = client.db('doctorsPortal').collection('payments');
 
     const verifyAdmin=async (req,res,next)=>{
       console.log('inside verifyAdmin',req.decoded.email)
@@ -194,7 +195,25 @@ async function run(){
         clientSecret: paymentIntent.client_secret,
       });
       
+    });
+
+    // payment in database
+    app.post('/payments', async (req,res)=>{
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
+      const id = payment.bookingId
+      const filter = {_id: ObjectId(id)}
+      const updateDoc ={
+        $set:{
+          paid: true,
+          transactionId: payment.transactionId
+        }
+      }
+      const updateResult = await bookingsCollection.updateOne(filter, updateDoc)
+      res.send(result);
     })
+
+
 
     app.get('/jwt',async(req, res)=>{
       const email = req.query.email;
